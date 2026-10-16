@@ -1,0 +1,76 @@
+@model AcxiomCRM.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create account";
+}
+
+<div class="auth-form">
+    <span class="badge badge-soft-primary mb-3"><i class="bi bi-person-plus-fill me-1"></i> Start selling smarter</span>
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-subtitle">Your new account starts with Sales Executive access. An administrator can adjust it later.</p>
+
+    <form asp-action="Register" method="post" aria-label="Create account form">
+        @Html.AntiForgeryToken()
+        <input asp-for="ReturnUrl" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <label asp-for="FirstName" class="form-label required"></label>
+                <input asp-for="FirstName" class="form-control" autocomplete="given-name" placeholder="First name" autofocus />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="LastName" class="form-label required"></label>
+                <input asp-for="LastName" class="form-control" autocomplete="family-name" placeholder="Last name" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label asp-for="Email" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input asp-for="Email" class="form-control" autocomplete="email" placeholder="name@company.com" />
+            </div>
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mt-3">
+            <label asp-for="Password" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" placeholder="Create a strong password" />
+                <button class="btn btn-light border" type="button" data-password-toggle="#Password" aria-label="Show password" aria-pressed="false">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="form-text">Use at least 8 characters, including uppercase, lowercase, a number, and a symbol.</div>
+        </div>
+
+        <div class="mt-3 mb-4">
+            <label asp-for="ConfirmPassword" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Re-enter your password" />
+                <button class="btn btn-light border" type="button" data-password-toggle="#ConfirmPassword" aria-label="Show password confirmation" aria-pressed="false">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-person-check-fill me-1"></i> Create account
+        </button>
+    </form>
+
+    <p class="text-center small text-muted mt-4 mb-0">
+        Already have an account?
+        <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl" class="fw-semibold">Sign in</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,4 @@
+@model Opportunity
+@{ ViewData["Title"] = "New opportunity"; }
+<div class="page-heading mb-4"><a asp-action="Index" class="back-link"><i class="bi bi-arrow-left"></i> Opportunities</a><h2>New opportunity</h2><p>Capture the deal, its forecast, and the next path to close.</p></div><form asp-action="Create" method="post" class="content-card form-card"><partial name="_OpportunityForm" model="Model" /><div class="form-actions"><a asp-action="Index" class="btn btn-light">Cancel</a><button class="btn btn-primary" type="submit"><i class="bi bi-check-lg"></i> Create opportunity</button></div></form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /><script>document.querySelector('[data-opportunity-stage]')?.addEventListener('change', function(){ const p=document.getElementById('Probability'); if(this.value === '5') p.value=100; if(this.value === '6') p.value=0; });</script> }

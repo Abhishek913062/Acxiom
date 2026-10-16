@@ -1,0 +1,55 @@
+@model AcxiomCRM.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+
+<div class="auth-form">
+    <span class="badge badge-soft-primary mb-3"><i class="bi bi-shield-check me-1"></i> Secure workspace</span>
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to manage your customers, pipeline, and follow-ups.</p>
+
+    <form asp-action="Login" method="post" class="needs-validation" aria-label="Sign in form">
+        @Html.AntiForgeryToken()
+        <input asp-for="ReturnUrl" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input asp-for="Email" class="form-control" autocomplete="username" placeholder="name@company.com" autofocus />
+            </div>
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input asp-for="Password" class="form-control" autocomplete="current-password" placeholder="Enter your password" />
+                <button class="btn btn-light border" type="button" data-password-toggle="#Password" aria-label="Show password" aria-pressed="false">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-4">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Sign in
+        </button>
+    </form>
+
+    <p class="text-center small text-muted mt-4 mb-0">
+        New to AcxiomCRM?
+        <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-semibold">Create an account</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

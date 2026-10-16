@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<div class="auth-form text-center">
+    <div class="empty-icon mx-auto mb-3 text-danger bg-danger-subtle"><i class="bi bi-shield-lock-fill"></i></div>
+    <h1 class="auth-title">Access denied</h1>
+    <p class="auth-subtitle">You do not have permission to view that page. If you believe this is an error, please contact an administrator.</p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary"><i class="bi bi-grid-1x2-fill me-1"></i> Go to dashboard</a>
+    }
+    else
+    {
+        <a asp-action="Login" class="btn btn-primary"><i class="bi bi-box-arrow-in-right me-1"></i> Sign in</a>
+    }
+</div>

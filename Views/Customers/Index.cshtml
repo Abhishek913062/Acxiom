@@ -1,0 +1,40 @@
+@model IEnumerable<Customer>
+@{
+    ViewData["Title"] = "Customers";
+    var search = ViewData["Search"] as string;
+    var selectedStatus = ViewData["Status"] as CustomerStatus?;
+}
+<div class="page-heading d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div><span class="section-kicker"><i class="bi bi-people-fill"></i> Customer management</span><h2>Customers</h2><p>Build durable relationships from one complete customer record.</p></div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> Add customer</a>
+</div>
+<section class="content-card">
+    <form method="get" class="filter-bar">
+        <div class="search-control"><i class="bi bi-search"></i><input type="search" name="search" value="@search" placeholder="Search name, company, or email" aria-label="Search customers" /></div>
+        <select class="form-select" name="status" aria-label="Filter by status"><option value="">All statuses</option>@foreach (var item in Html.GetEnumSelectList<CustomerStatus>()) { <option value="@item.Value" selected="@(item.Value == ((int?)selectedStatus)?.ToString())">@item.Text</option> }</select>
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-funnel"></i> Filter</button>
+        @if (!string.IsNullOrWhiteSpace(search) || selectedStatus is not null) { <a asp-action="Index" class="btn btn-link">Clear</a> }
+    </form>
+    <div class="table-responsive">
+        <table class="table app-table align-middle mb-0">
+            <thead><tr><th>Customer</th><th>Contact</th><th>Status</th><th>Owner</th><th>Added</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6"><div class="empty-state"><i class="bi bi-people"></i><strong>No customers found</strong><span>Try a different filter or create your first customer record.</span></div></td></tr>
+            }
+            @foreach (var customer in Model)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@customer.Id" class="table-primary-link"><span class="initial-avatar">@customer.DisplayName[..1].ToUpperInvariant()</span><span><strong>@customer.DisplayName</strong><small>@customer.Email</small></span></a></td>
+                    <td><span>@(customer.Phone ?? "—")</span><small>@(customer.City ?? customer.Country ?? "No location")</small></td>
+                    <td><span class="status-badge status-@customer.Status.ToString().ToLowerInvariant()">@customer.Status</span></td>
+                    <td>@(customer.Owner?.DisplayName ?? "Unassigned")</td>
+                    <td>@customer.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td class="text-end"><div class="table-actions"><a asp-action="Details" asp-route-id="@customer.Id" class="btn btn-sm btn-light" title="View"><i class="bi bi-eye"></i></a><a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-light" title="Edit"><i class="bi bi-pencil"></i></a></div></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

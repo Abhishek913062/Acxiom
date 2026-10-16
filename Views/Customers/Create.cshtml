@@ -1,0 +1,10 @@
+@model Customer
+@{
+    ViewData["Title"] = "Add customer";
+}
+<div class="page-heading mb-4"><a asp-action="Index" class="back-link"><i class="bi bi-arrow-left"></i> Customers</a><h2>Add customer</h2><p>Create a complete profile to give your team shared context.</p></div>
+<form asp-action="Create" method="post" class="content-card form-card">
+    <partial name="_CustomerForm" model="Model" />
+    <div class="form-actions"><a asp-action="Index" class="btn btn-light">Cancel</a><button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Create customer</button></div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

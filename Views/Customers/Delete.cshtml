@@ -1,0 +1,6 @@
+@model Customer
+@{
+    ViewData["Title"] = "Delete customer";
+}
+<div class="page-heading mb-4"><a asp-action="Details" asp-route-id="@Model.Id" class="back-link"><i class="bi bi-arrow-left"></i> Customer profile</a><h2>Delete customer</h2><p>This action cannot be undone.</p></div>
+<section class="content-card danger-card narrow-card"><i class="bi bi-exclamation-triangle-fill danger-icon"></i><h3>Delete @Model.DisplayName?</h3><p>Customer records with related opportunities or activities are protected. Consider marking the customer inactive instead.</p><form asp-action="Delete" method="post" class="form-actions"><input type="hidden" asp-for="Id" /><a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-light">Cancel</a><button type="submit" class="btn btn-danger"><i class="bi bi-trash3"></i> Delete customer</button></form></section>

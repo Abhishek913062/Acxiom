@@ -1,0 +1,137 @@
+@using System.Text.Json
+@model AcxiomCRM.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var pipelineLabels = JsonSerializer.Serialize(Model.Pipeline.Select(item => item.Stage.ToString().Replace("NeedsAnalysis", "Needs analysis").Replace("ClosedWon", "Closed won").Replace("ClosedLost", "Closed lost")));
+    var pipelineValues = JsonSerializer.Serialize(Model.Pipeline.Select(item => item.Amount));
+    var pipelineCounts = JsonSerializer.Serialize(Model.Pipeline.Select(item => item.Count));
+}
+
+<div class="page-heading d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+        <span class="section-kicker"><i class="bi bi-sun-fill"></i> Live sales pulse</span>
+        <h2>Good to see you, @(User.Identity?.Name?.Split('@').FirstOrDefault()).</h2>
+        <p>Here’s the shape of your customer relationships and pipeline today.</p>
+    </div>
+    <a asp-controller="Opportunities" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New opportunity</a>
+</div>
+
+<section class="metric-grid mb-4" aria-label="Key performance indicators">
+    <article class="metric-card metric-blue">
+        <span class="metric-icon"><i class="bi bi-people-fill"></i></span>
+        <div><span class="metric-label">Active customers</span><strong>@Model.CustomerCount.ToString("N0")</strong><small>Customers in your portfolio</small></div>
+    </article>
+    <article class="metric-card metric-violet">
+        <span class="metric-icon"><i class="bi bi-person-lines-fill"></i></span>
+        <div><span class="metric-label">Open leads</span><strong>@Model.OpenLeadCount.ToString("N0")</strong><small>Ready for attention</small></div>
+    </article>
+    <article class="metric-card metric-amber">
+        <span class="metric-icon"><i class="bi bi-calendar2-check-fill"></i></span>
+        <div><span class="metric-label">Due follow-ups</span><strong>@Model.DueActivityCount.ToString("N0")</strong><small>Today and overdue</small></div>
+    </article>
+    <article class="metric-card metric-teal">
+        <span class="metric-icon"><i class="bi bi-cash-stack"></i></span>
+        <div><span class="metric-label">Open pipeline</span><strong>@Model.OpenPipelineValue.ToString("C0")</strong><small>@Model.WeightedPipelineValue.ToString("C0") weighted value</small></div>
+    </article>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <article class="content-card chart-card h-100">
+            <div class="card-heading">
+                <div><h3>Pipeline by stage</h3><p>Open and closed value across your sales motion.</p></div>
+                <span class="chip chip-success"><i class="bi bi-trophy-fill"></i> @Model.WonThisMonthValue.ToString("C0") won this month</span>
+            </div>
+            <div class="chart-wrap"><canvas id="pipelineChart" aria-label="Pipeline value by stage"></canvas></div>
+        </article>
+    </div>
+    <div class="col-xl-4">
+        <article class="content-card chart-card h-100">
+            <div class="card-heading"><div><h3>Opportunity mix</h3><p>Deals by current stage.</p></div></div>
+            <div class="chart-wrap chart-wrap-small"><canvas id="pipelineMixChart" aria-label="Opportunity count by stage"></canvas></div>
+        </article>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-xl-7">
+        <article class="content-card h-100">
+            <div class="card-heading">
+                <div><h3>Upcoming follow-ups</h3><p>Keep every customer conversation moving.</p></div>
+                <a asp-controller="Activities" asp-action="Index" class="text-link">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+            @if (Model.UpcomingActivities.Count == 0)
+            {
+                <div class="empty-state compact"><i class="bi bi-calendar-check"></i><strong>Nothing due right now</strong><span>Create a follow-up to keep your next action visible.</span></div>
+            }
+            else
+            {
+                <div class="activity-list">
+                    @foreach (var activity in Model.UpcomingActivities)
+                    {
+                        var overdue = activity.DueAt < DateTime.UtcNow;
+                        <a asp-controller="Activities" asp-action="Details" asp-route-id="@activity.Id" class="activity-row">
+                            <span class="activity-type"><i class="bi @(activity.Type == ActivityType.Call ? "bi-telephone-fill" : activity.Type == ActivityType.Email ? "bi-envelope-fill" : activity.Type == ActivityType.Meeting ? "bi-people-fill" : "bi-check2-square")"></i></span>
+                            <span class="activity-copy"><strong>@activity.Subject</strong><small>@activity.RelatedTo</small></span>
+                            <span class="due-copy @(overdue ? "overdue" : "")"><strong>@(activity.DueAt?.ToLocalTime().ToString("dd MMM") ?? "No date")</strong><small>@(overdue ? "Overdue" : activity.DueAt?.ToLocalTime().ToString("h:mm tt"))</small></span>
+                        </a>
+                    }
+                </div>
+            }
+        </article>
+    </div>
+    <div class="col-xl-5">
+        <article class="content-card h-100">
+            <div class="card-heading">
+                <div><h3>New leads</h3><p>Recently added to your workspace.</p></div>
+                <a asp-controller="Leads" asp-action="Index" class="text-link">All leads <i class="bi bi-arrow-right"></i></a>
+            </div>
+            @if (Model.RecentLeads.Count == 0)
+            {
+                <div class="empty-state compact"><i class="bi bi-person-plus"></i><strong>Your lead list is clear</strong><span>Add a new lead when an opportunity arrives.</span></div>
+            }
+            else
+            {
+                <div class="lead-list">
+                    @foreach (var lead in Model.RecentLeads)
+                    {
+                        <a asp-controller="Leads" asp-action="Details" asp-route-id="@lead.Id" class="lead-row">
+                            <span class="initial-avatar">@lead.Name[..1].ToUpperInvariant()</span>
+                            <span class="lead-copy"><strong>@lead.Name</strong><small>@(lead.Company ?? "Independent")</small></span>
+                            <span class="score-pill">@lead.Score score</span>
+                        </a>
+                    }
+                </div>
+            }
+        </article>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const labels = @Html.Raw(pipelineLabels);
+            const values = @Html.Raw(pipelineValues);
+            const counts = @Html.Raw(pipelineCounts);
+            const palette = ['#5b6cf0', '#8b5cf6', '#0ea5a4', '#f59e0b', '#ec4899', '#22c55e', '#94a3b8'];
+            const money = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+            const common = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+            const pipelineCanvas = document.getElementById('pipelineChart');
+            if (pipelineCanvas && window.Chart) {
+                new Chart(pipelineCanvas, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ data: values, backgroundColor: palette, borderRadius: 7, borderSkipped: false, maxBarThickness: 42 }] },
+                    options: { ...common, scales: { x: { grid: { display: false }, border: { display: false } }, y: { beginAtZero: true, grid: { color: '#edf0f7' }, border: { display: false }, ticks: { callback: value => money.format(value) } } }, plugins: { ...common.plugins, tooltip: { callbacks: { label: context => ` ${money.format(context.raw)}` } } } }
+                });
+            }
+            const mixCanvas = document.getElementById('pipelineMixChart');
+            if (mixCanvas && window.Chart) {
+                new Chart(mixCanvas, {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data: counts, backgroundColor: palette, borderWidth: 0, hoverOffset: 4 }] },
+                    options: { ...common, cutout: '68%', plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 9, boxHeight: 9, usePointStyle: true, pointStyle: 'circle', padding: 14, font: { family: 'DM Sans' } } } } }
+                });
+            }
+        })();
+    </script>
+}

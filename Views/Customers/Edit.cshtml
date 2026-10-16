@@ -1,0 +1,10 @@
+@model Customer
+@{
+    ViewData["Title"] = "Edit customer";
+}
+<div class="page-heading mb-4"><a asp-action="Details" asp-route-id="@Model.Id" class="back-link"><i class="bi bi-arrow-left"></i> Customer profile</a><h2>Edit @Model.DisplayName</h2><p>Keep the customer profile current for your whole team.</p></div>
+<form asp-action="Edit" method="post" class="content-card form-card">
+    <partial name="_CustomerForm" model="Model" />
+    <div class="form-actions"><a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-light">Cancel</a><button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save changes</button></div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
